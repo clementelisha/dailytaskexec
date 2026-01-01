@@ -3,149 +3,379 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Daily Execution</title>
+<title>Daily System</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#000;color:#fff;padding-bottom:80px}
-.header{background:#111;padding:16px;position:sticky;top:0;z-index:100;border-bottom:1px solid #333}
-.header h1{font-size:20px;margin-bottom:12px}
-.stats{display:flex;gap:8px}
-.stat{flex:1;background:#1a1a1a;padding:12px;border-radius:8px;text-align:center}
-.stat-label{font-size:11px;color:#888;margin-bottom:4px}
-.stat-value{font-size:18px;font-weight:700;color:#0f0}
-.fab{position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:#0f0;color:#000;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,255,0,0.3)}
-.day-card{background:#111;margin:12px;padding:16px;border-radius:12px;border:1px solid #333}
-.day-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #333}
-.day-date{font-size:16px;font-weight:600}
-.day-score{font-size:14px;padding:4px 12px;border-radius:20px;background:#1a1a1a}
-.day-score.complete{background:#0f0;color:#000}
-.task-list{margin-bottom:16px}
-.task{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #222}
-.task:last-child{border-bottom:none}
-.task input[type="checkbox"]{width:24px;height:24px;margin-right:12px;cursor:pointer;accent-color:#0f0}
-.task label{flex:1;font-size:14px;cursor:pointer}
-.task input[type="checkbox"]:checked + label{color:#0f0;text-decoration:line-through}
-.details{margin-top:16px}
-.detail-group{margin-bottom:12px}
-.detail-label{font-size:11px;color:#888;margin-bottom:4px;text-transform:uppercase}
-.detail-input{width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;padding:10px;border-radius:6px;font-size:14px;font-family:inherit}
-textarea.detail-input{resize:vertical;min-height:60px}
-select.detail-input{cursor:pointer}
-.job-group{display:flex;gap:8px}
-.job-group .detail-input{flex:1}
-.expand-btn{width:100%;background:transparent;border:1px solid #333;color:#888;padding:8px;border-radius:6px;font-size:12px;margin-top:8px;cursor:pointer}
-.details.collapsed{display:none}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0a0a0a;color:#e0e0e0;overflow-x:hidden}
+.container{max-width:600px;margin:0 auto;padding:20px;padding-bottom:100px}
+.header{margin-bottom:32px}
+.title{font-size:28px;font-weight:700;margin-bottom:8px;color:#fff}
+.date-nav{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.date-btn{background:#1a1a1a;border:none;color:#fff;width:40px;height:40px;border-radius:50%;cursor:pointer;font-size:20px}
+.current-date{flex:1;text-align:center;font-size:18px;font-weight:600}
+.today-btn{background:#0f0;color:#000;border:none;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px}
+.stat-card{background:#1a1a1a;padding:16px;border-radius:12px}
+.stat-label{font-size:12px;color:#888;margin-bottom:4px}
+.stat-value{font-size:24px;font-weight:700;color:#0f0}
+.completion-ring{width:80px;height:80px;margin:0 auto 16px}
+.tasks-section{margin-bottom:32px}
+.section-title{font-size:14px;color:#888;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.task-card{background:#1a1a1a;padding:20px;border-radius:12px;margin-bottom:12px;cursor:pointer;transition:all 0.2s}
+.task-card.done{background:#0f0;color:#000}
+.task-card.done .task-title,.task-card.done .task-desc{color:#000}
+.task-header{display:flex;align-items:flex-start;gap:12px}
+.task-check{width:24px;height:24px;border:2px solid #0f0;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px}
+.task-card.done .task-check{background:#000;border-color:#000;color:#0f0}
+.task-content{flex:1}
+.task-title{font-size:16px;font-weight:600;margin-bottom:4px}
+.task-desc{font-size:13px;color:#888;line-height:1.4}
+.task-card.done .task-desc{color:#333}
+.task-details{margin-top:16px;padding-top:16px;border-top:1px solid #333}
+.task-card.done .task-details{border-top:1px solid #00aa00}
+.detail-row{margin-bottom:12px}
+.detail-row:last-child{margin-bottom:0}
+.detail-label{font-size:11px;color:#666;margin-bottom:6px;text-transform:uppercase}
+.task-card.done .detail-label{color:#333}
+.detail-input{width:100%;background:#0a0a0a;border:1px solid #333;color:#fff;padding:10px;border-radius:8px;font-size:14px;font-family:inherit}
+.task-card.done .detail-input{background:#000;border-color:#00aa00;color:#0f0}
+textarea.detail-input{resize:vertical;min-height:80px}
+.analytics-btn{position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:#0f0;color:#000;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 20px rgba(0,255,0,0.4);z-index:100}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.95);z-index:200;overflow-y:auto}
+.modal.show{display:block}
+.modal-content{max-width:800px;margin:40px auto;padding:20px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}
+.modal-title{font-size:24px;font-weight:700}
+.close-btn{background:transparent;border:none;color:#888;font-size:32px;cursor:pointer}
+.date-range{display:flex;gap:12px;margin-bottom:24px}
+.date-range input{flex:1;background:#1a1a1a;border:1px solid #333;color:#fff;padding:12px;border-radius:8px;font-size:14px}
+.export-btn{width:100%;background:#0f0;color:#000;border:none;padding:16px;border-radius:8px;font-size:16px;font-weight:600;cursor:pointer;margin-bottom:24px}
+.analytics-grid{display:grid;gap:16px;margin-bottom:24px}
+.analytics-card{background:#1a1a1a;padding:20px;border-radius:12px}
+.analytics-title{font-size:14px;color:#888;margin-bottom:12px}
+.analytics-value{font-size:32px;font-weight:700;color:#0f0;margin-bottom:8px}
+.analytics-detail{font-size:13px;color:#666}
+.history-list{margin-top:24px}
+.history-item{background:#1a1a1a;padding:16px;border-radius:8px;margin-bottom:12px}
+.history-date{font-size:14px;font-weight:600;margin-bottom:8px}
+.history-tasks{font-size:13px;color:#888}
+.streak-indicator{display:inline-block;padding:4px 12px;background:#0f0;color:#000;border-radius:12px;font-size:12px;font-weight:600;margin-left:8px}
+.manage-btn{background:#1a1a1a;border:1px solid #333;color:#888;padding:10px 16px;border-radius:8px;font-size:13px;cursor:pointer;margin-bottom:24px}
+.habit-list{margin-bottom:16px}
+.habit-item{background:#1a1a1a;padding:16px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.habit-name{font-size:14px}
+.habit-actions{display:flex;gap:8px}
+.habit-btn{background:transparent;border:1px solid #333;color:#888;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer}
+.add-habit-input{width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;padding:12px;border-radius:8px;font-size:14px;margin-bottom:12px}
+.add-habit-btn{width:100%;background:#0f0;color:#000;border:none;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
+<div class="container">
 <div class="header">
-<h1>EXECUTION</h1>
-<div class="stats">
-<div class="stat">
-<div class="stat-label">WEEK</div>
-<div class="stat-value" id="weekScore">0%</div>
+<div class="title">DAILY SYSTEM</div>
 </div>
-<div class="stat">
-<div class="stat-label">MONTH</div>
-<div class="stat-value" id="monthScore">0%</div>
+
+<div class="date-nav">
+<button class="date-btn" onclick="changeDate(-1)">‹</button>
+<div class="current-date" id="currentDate"></div>
+<button class="date-btn" onclick="changeDate(1)">›</button>
+<button class="today-btn" onclick="goToday()">TODAY</button>
 </div>
-<div class="stat">
-<div class="stat-label">DAYS</div>
-<div class="stat-value" id="totalDays">0</div>
+
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-label">Completion</div>
+<div class="stat-value" id="completion">0%</div>
+</div>
+<div class="stat-card">
+<div class="stat-label">Streak</div>
+<div class="stat-value" id="streak">0</div>
 </div>
 </div>
+
+<button class="manage-btn" onclick="openManage()">MANAGE HABITS</button>
+
+<div class="tasks-section">
+<div class="section-title">DAILY HABITS</div>
+<div id="tasksList"></div>
 </div>
-<div id="days"></div>
-<button class="fab" onclick="addDay()">+</button>
+</div>
+
+<button class="analytics-btn" onclick="openAnalytics()">📊</button>
+
+<div class="modal" id="analyticsModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">ANALYTICS</div>
+<button class="close-btn" onclick="closeAnalytics()">&times;</button>
+</div>
+<div class="date-range">
+<input type="date" id="startDate">
+<input type="date" id="endDate">
+</div>
+<button class="export-btn" onclick="generateReport()">GENERATE REPORT</button>
+<div class="analytics-grid" id="analyticsData"></div>
+<div class="history-list" id="historyList"></div>
+</div>
+</div>
+
+<div class="modal" id="manageModal">
+<div class="modal-content">
+<div class="modal-header">
+<div class="modal-title">MANAGE HABITS</div>
+<button class="close-btn" onclick="closeManage()">&times;</button>
+</div>
+<div class="habit-list" id="habitList"></div>
+<input type="text" class="add-habit-input" id="newHabit" placeholder="Add new habit...">
+<button class="add-habit-btn" onclick="addHabit()">ADD HABIT</button>
+</div>
+</div>
+
 <script>
-let data=JSON.parse(localStorage.getItem('tracker'))||[];
-const tasks=['Prayer','Read 2 Proverbs','90min Skill','Build Thing','Doc Build','Publish Post','Remote Job','Update Tracker','Fixed Hours','Tomorrow Task'];
+let habits=JSON.parse(localStorage.getItem('habits'))||[
+{id:1,name:'Prayer',desc:'Pray (3 hours, not random)',detail:'time'},
+{id:2,name:'Bible',desc:'Read 2 chapters of Proverbs or more',detail:'chapters'},
+{id:3,name:'Skill Practice',desc:'90 minutes on ONE skill only',detail:'skill'},
+{id:4,name:'Build',desc:'Build or improve ONE tangible thing',detail:'what'},
+{id:5,name:'Document',desc:'Write 5–10 lines explaining what you built',detail:'text'},
+{id:6,name:'Public Post',desc:'Publish ONE post (progress, build, lesson)',detail:'link'},
+{id:7,name:'Remote Job Action',desc:'Apply to 3 jobs OR send 2 cold messages',detail:'count'},
+{id:8,name:'Log',desc:'Update tracker: applications, builds, posts',detail:'text'}
+];
+let data=JSON.parse(localStorage.getItem('data'))||{};
+let currentDate=new Date().toISOString().split('T')[0];
 
-function save(){localStorage.setItem('tracker',JSON.stringify(data));render()}
-
-function addDay(){
-const today=new Date().toISOString().split('T')[0];
-if(data.some(d=>d.date===today))return;
-data.unshift({date:today,t:[0,0,0,0,0,0,0,0,0,0],skill:'',built:'',link:'',jobType:'apply',count:0,notes:'',expanded:true});
-save()
+function save(){
+localStorage.setItem('habits',JSON.stringify(habits));
+localStorage.setItem('data',JSON.stringify(data))
 }
 
-function calc(row){
-const done=row.t.filter(c=>c).length;
-return Math.round(done/10*100)
-}
-
-function toggle(i){
-data[i].expanded=!data[i].expanded;
+function changeDate(days){
+const d=new Date(currentDate);
+d.setDate(d.getDate()+days);
+currentDate=d.toISOString().split('T')[0];
 render()
 }
 
+function goToday(){
+currentDate=new Date().toISOString().split('T')[0];
+render()
+}
+
+function initDay(){
+if(!data[currentDate]){
+data[currentDate]={tasks:{},notes:{}};
+habits.forEach(h=>data[currentDate].tasks[h.id]=false)
+}
+}
+
+function toggleTask(id){
+initDay();
+data[currentDate].tasks[id]=!data[currentDate].tasks[id];
+save();
+render()
+}
+
+function updateNote(id,val){
+initDay();
+data[currentDate].notes[id]=val;
+save()
+}
+
+function calcCompletion(){
+initDay();
+const total=habits.length;
+const done=Object.values(data[currentDate].tasks).filter(v=>v).length;
+return Math.round(done/total*100)
+}
+
+function calcStreak(){
+let streak=0;
+const today=new Date();
+for(let i=0;i<365;i++){
+const d=new Date(today);
+d.setDate(d.getDate()-i);
+const key=d.toISOString().split('T')[0];
+if(!data[key])break;
+const total=Object.keys(data[key].tasks).length;
+const done=Object.values(data[key].tasks).filter(v=>v).length;
+if(done===total)streak++;
+else break
+}
+return streak
+}
+
 function render(){
-const days=document.getElementById('days');
-days.innerHTML='';
-data.forEach((row,i)=>{
-const score=calc(row);
-const complete=score===100;
+initDay();
+const d=new Date(currentDate);
+document.getElementById('currentDate').textContent=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+document.getElementById('completion').textContent=calcCompletion()+'%';
+document.getElementById('streak').textContent=calcStreak();
+
+const list=document.getElementById('tasksList');
+list.innerHTML='';
+habits.forEach(h=>{
+const done=data[currentDate].tasks[h.id];
+const note=data[currentDate].notes[h.id]||'';
 const card=document.createElement('div');
-card.className='day-card';
+card.className='task-card'+(done?' done':'');
 card.innerHTML=`
-<div class="day-header">
-<div class="day-date">${new Date(row.date+'T00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
-<div class="day-score ${complete?'complete':''}">${score}%</div>
-</div>
-<div class="task-list">
-${tasks.map((task,ti)=>`
-<div class="task">
-<input type="checkbox" id="t${i}_${ti}" ${row.t[ti]?'checked':''} onchange="data[${i}].t[${ti}]=this.checked?1:0;save()">
-<label for="t${i}_${ti}">${task}</label>
-</div>
-`).join('')}
-</div>
-<button class="expand-btn" onclick="toggle(${i})">${row.expanded?'HIDE':'SHOW'} DETAILS</button>
-<div class="details ${row.expanded?'':'collapsed'}">
-<div class="detail-group">
-<div class="detail-label">Skill Practiced</div>
-<input type="text" class="detail-input" value="${row.skill}" onchange="data[${i}].skill=this.value;save()" placeholder="What skill?">
-</div>
-<div class="detail-group">
-<div class="detail-label">What I Built</div>
-<input type="text" class="detail-input" value="${row.built}" onchange="data[${i}].built=this.value;save()" placeholder="Describe build">
-</div>
-<div class="detail-group">
-<div class="detail-label">Post Link</div>
-<input type="text" class="detail-input" value="${row.link}" onchange="data[${i}].link=this.value;save()" placeholder="URL">
-</div>
-<div class="detail-group">
-<div class="detail-label">Job Action</div>
-<div class="job-group">
-<select class="detail-input" onchange="data[${i}].jobType=this.value;save()">
-<option ${row.jobType==='apply'?'selected':''} value="apply">Apply</option>
-<option ${row.jobType==='outreach'?'selected':''} value="outreach">Outreach</option>
-</select>
-<input type="number" class="detail-input" value="${row.count}" onchange="data[${i}].count=+this.value;save()" placeholder="#" min="0">
+<div class="task-header" onclick="toggleTask(${h.id})">
+<div class="task-check">${done?'✓':''}</div>
+<div class="task-content">
+<div class="task-title">${h.name}</div>
+<div class="task-desc">${h.desc}</div>
 </div>
 </div>
-<div class="detail-group">
-<div class="detail-label">Notes</div>
-<textarea class="detail-input" onchange="data[${i}].notes=this.value;save()" placeholder="Optional notes">${row.notes}</textarea>
+<div class="task-details">
+<div class="detail-row">
+<div class="detail-label">NOTES</div>
+<textarea class="detail-input" onchange="updateNote(${h.id},this.value)" placeholder="Details...">${note}</textarea>
 </div>
 </div>
 `;
-days.appendChild(card)
-});
-calcStats()
+list.appendChild(card)
+})
 }
 
-function calcStats(){
-const now=new Date();
-const weekAgo=new Date(now.getTime()-7*86400000);
-const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
-const weekData=data.filter(d=>new Date(d.date+'T00:00')>=weekAgo);
-const monthData=data.filter(d=>new Date(d.date+'T00:00')>=monthStart);
-const avg=arr=>arr.length?Math.round(arr.reduce((s,r)=>s+calc(r),0)/arr.length):0;
-document.getElementById('weekScore').textContent=avg(weekData)+'%';
-document.getElementById('monthScore').textContent=avg(monthData)+'%';
-document.getElementById('totalDays').textContent=data.length
+function openAnalytics(){
+const today=new Date().toISOString().split('T')[0];
+const monthAgo=new Date();
+monthAgo.setMonth(monthAgo.getMonth()-1);
+document.getElementById('startDate').value=monthAgo.toISOString().split('T')[0];
+document.getElementById('endDate').value=today;
+document.getElementById('analyticsModal').classList.add('show')
+}
+
+function closeAnalytics(){
+document.getElementById('analyticsModal').classList.remove('show')
+}
+
+function generateReport(){
+const start=document.getElementById('startDate').value;
+const end=document.getElementById('endDate').value;
+const range=[];
+let d=new Date(start);
+while(d<=new Date(end)){
+range.push(d.toISOString().split('T')[0]);
+d.setDate(d.getDate()+1)
+}
+
+let totalDays=range.length;
+let completedDays=0;
+let totalTasks=0;
+let completedTasks=0;
+let missed={};
+habits.forEach(h=>missed[h.name]=0);
+
+range.forEach(date=>{
+if(data[date]){
+const tasks=Object.values(data[date].tasks);
+const done=tasks.filter(v=>v).length;
+totalTasks+=tasks.length;
+completedTasks+=done;
+if(done===tasks.length)completedDays++;
+habits.forEach(h=>{
+if(!data[date].tasks[h.id])missed[h.name]++
+})
+}
+});
+
+const avg=totalDays>0?Math.round(completedTasks/totalTasks*100):0;
+
+const analyticsData=document.getElementById('analyticsData');
+analyticsData.innerHTML=`
+<div class="analytics-card">
+<div class="analytics-title">Total Days</div>
+<div class="analytics-value">${totalDays}</div>
+</div>
+<div class="analytics-card">
+<div class="analytics-title">Perfect Days</div>
+<div class="analytics-value">${completedDays}</div>
+<div class="analytics-detail">${totalDays>0?Math.round(completedDays/totalDays*100):0}% completion rate</div>
+</div>
+<div class="analytics-card">
+<div class="analytics-title">Average Completion</div>
+<div class="analytics-value">${avg}%</div>
+<div class="analytics-detail">${completedTasks}/${totalTasks} tasks completed</div>
+</div>
+<div class="analytics-card">
+<div class="analytics-title">Most Missed</div>
+<div class="analytics-value">${Object.entries(missed).sort((a,b)=>b[1]-a[1])[0][0]}</div>
+<div class="analytics-detail">${Object.entries(missed).sort((a,b)=>b[1]-a[1])[0][1]} times</div>
+</div>
+`;
+
+const historyList=document.getElementById('historyList');
+historyList.innerHTML='<div class="analytics-title">DAILY BREAKDOWN</div>';
+range.reverse().forEach(date=>{
+if(data[date]){
+const tasks=Object.values(data[date].tasks);
+const done=tasks.filter(v=>v).length;
+const total=tasks.length;
+const item=document.createElement('div');
+item.className='history-item';
+item.innerHTML=`
+<div class="history-date">${new Date(date).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}${done===total?'<span class="streak-indicator">PERFECT</span>':''}</div>
+<div class="history-tasks">${done}/${total} completed (${Math.round(done/total*100)}%)</div>
+`;
+historyList.appendChild(item)
+}
+})
+}
+
+function openManage(){
+document.getElementById('manageModal').classList.add('show');
+renderHabits()
+}
+
+function closeManage(){
+document.getElementById('manageModal').classList.remove('show')
+}
+
+function renderHabits(){
+const list=document.getElementById('habitList');
+list.innerHTML='';
+habits.forEach((h,i)=>{
+const item=document.createElement('div');
+item.className='habit-item';
+item.innerHTML=`
+<div class="habit-name">${h.name}</div>
+<div class="habit-actions">
+<button class="habit-btn" onclick="deleteHabit(${i})">DELETE</button>
+</div>
+`;
+list.appendChild(item)
+})
+}
+
+function addHabit(){
+const input=document.getElementById('newHabit');
+const name=input.value.trim();
+if(!name)return;
+const id=Date.now();
+habits.push({id,name,desc:'',detail:'text'});
+Object.keys(data).forEach(date=>{
+data[date].tasks[id]=false
+});
+save();
+input.value='';
+renderHabits();
+render()
+}
+
+function deleteHabit(i){
+if(!confirm('Delete this habit?'))return;
+const id=habits[i].id;
+habits.splice(i,1);
+Object.keys(data).forEach(date=>{
+delete data[date].tasks[id];
+delete data[date].notes[id]
+});
+save();
+renderHabits();
+render()
 }
 
 render()
