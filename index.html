@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Execution</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#000;color:#fff;padding-bottom:80px}
+.header{background:#111;padding:16px;position:sticky;top:0;z-index:100;border-bottom:1px solid #333}
+.header h1{font-size:20px;margin-bottom:12px}
+.stats{display:flex;gap:8px}
+.stat{flex:1;background:#1a1a1a;padding:12px;border-radius:8px;text-align:center}
+.stat-label{font-size:11px;color:#888;margin-bottom:4px}
+.stat-value{font-size:18px;font-weight:700;color:#0f0}
+.fab{position:fixed;bottom:20px;right:20px;width:56px;height:56px;background:#0f0;color:#000;border:none;border-radius:50%;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,255,0,0.3)}
+.day-card{background:#111;margin:12px;padding:16px;border-radius:12px;border:1px solid #333}
+.day-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #333}
+.day-date{font-size:16px;font-weight:600}
+.day-score{font-size:14px;padding:4px 12px;border-radius:20px;background:#1a1a1a}
+.day-score.complete{background:#0f0;color:#000}
+.task-list{margin-bottom:16px}
+.task{display:flex;align-items:center;padding:12px 0;border-bottom:1px solid #222}
+.task:last-child{border-bottom:none}
+.task input[type="checkbox"]{width:24px;height:24px;margin-right:12px;cursor:pointer;accent-color:#0f0}
+.task label{flex:1;font-size:14px;cursor:pointer}
+.task input[type="checkbox"]:checked + label{color:#0f0;text-decoration:line-through}
+.details{margin-top:16px}
+.detail-group{margin-bottom:12px}
+.detail-label{font-size:11px;color:#888;margin-bottom:4px;text-transform:uppercase}
+.detail-input{width:100%;background:#1a1a1a;border:1px solid #333;color:#fff;padding:10px;border-radius:6px;font-size:14px;font-family:inherit}
+textarea.detail-input{resize:vertical;min-height:60px}
+select.detail-input{cursor:pointer}
+.job-group{display:flex;gap:8px}
+.job-group .detail-input{flex:1}
+.expand-btn{width:100%;background:transparent;border:1px solid #333;color:#888;padding:8px;border-radius:6px;font-size:12px;margin-top:8px;cursor:pointer}
+.details.collapsed{display:none}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>EXECUTION</h1>
+<div class="stats">
+<div class="stat">
+<div class="stat-label">WEEK</div>
+<div class="stat-value" id="weekScore">0%</div>
+</div>
+<div class="stat">
+<div class="stat-label">MONTH</div>
+<div class="stat-value" id="monthScore">0%</div>
+</div>
+<div class="stat">
+<div class="stat-label">DAYS</div>
+<div class="stat-value" id="totalDays">0</div>
+</div>
+</div>
+</div>
+<div id="days"></div>
+<button class="fab" onclick="addDay()">+</button>
+<script>
+let data=JSON.parse(localStorage.getItem('tracker'))||[];
+const tasks=['Prayer','Read 2 Proverbs','90min Skill','Build Thing','Doc Build','Publish Post','Remote Job','Update Tracker','Fixed Hours','Tomorrow Task'];
+
+function save(){localStorage.setItem('tracker',JSON.stringify(data));render()}
+
+function addDay(){
+const today=new Date().toISOString().split('T')[0];
+if(data.some(d=>d.date===today))return;
+data.unshift({date:today,t:[0,0,0,0,0,0,0,0,0,0],skill:'',built:'',link:'',jobType:'apply',count:0,notes:'',expanded:true});
+save()
+}
+
+function calc(row){
+const done=row.t.filter(c=>c).length;
+return Math.round(done/10*100)
+}
+
+function toggle(i){
+data[i].expanded=!data[i].expanded;
+render()
+}
+
+function render(){
+const days=document.getElementById('days');
+days.innerHTML='';
+data.forEach((row,i)=>{
+const score=calc(row);
+const complete=score===100;
+const card=document.createElement('div');
+card.className='day-card';
+card.innerHTML=`
+<div class="day-header">
+<div class="day-date">${new Date(row.date+'T00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}</div>
+<div class="day-score ${complete?'complete':''}">${score}%</div>
+</div>
+<div class="task-list">
+${tasks.map((task,ti)=>`
+<div class="task">
+<input type="checkbox" id="t${i}_${ti}" ${row.t[ti]?'checked':''} onchange="data[${i}].t[${ti}]=this.checked?1:0;save()">
+<label for="t${i}_${ti}">${task}</label>
+</div>
+`).join('')}
+</div>
+<button class="expand-btn" onclick="toggle(${i})">${row.expanded?'HIDE':'SHOW'} DETAILS</button>
+<div class="details ${row.expanded?'':'collapsed'}">
+<div class="detail-group">
+<div class="detail-label">Skill Practiced</div>
+<input type="text" class="detail-input" value="${row.skill}" onchange="data[${i}].skill=this.value;save()" placeholder="What skill?">
+</div>
+<div class="detail-group">
+<div class="detail-label">What I Built</div>
+<input type="text" class="detail-input" value="${row.built}" onchange="data[${i}].built=this.value;save()" placeholder="Describe build">
+</div>
+<div class="detail-group">
+<div class="detail-label">Post Link</div>
+<input type="text" class="detail-input" value="${row.link}" onchange="data[${i}].link=this.value;save()" placeholder="URL">
+</div>
+<div class="detail-group">
+<div class="detail-label">Job Action</div>
+<div class="job-group">
+<select class="detail-input" onchange="data[${i}].jobType=this.value;save()">
+<option ${row.jobType==='apply'?'selected':''} value="apply">Apply</option>
+<option ${row.jobType==='outreach'?'selected':''} value="outreach">Outreach</option>
+</select>
+<input type="number" class="detail-input" value="${row.count}" onchange="data[${i}].count=+this.value;save()" placeholder="#" min="0">
+</div>
+</div>
+<div class="detail-group">
+<div class="detail-label">Notes</div>
+<textarea class="detail-input" onchange="data[${i}].notes=this.value;save()" placeholder="Optional notes">${row.notes}</textarea>
+</div>
+</div>
+`;
+days.appendChild(card)
+});
+calcStats()
+}
+
+function calcStats(){
+const now=new Date();
+const weekAgo=new Date(now.getTime()-7*86400000);
+const monthStart=new Date(now.getFullYear(),now.getMonth(),1);
+const weekData=data.filter(d=>new Date(d.date+'T00:00')>=weekAgo);
+const monthData=data.filter(d=>new Date(d.date+'T00:00')>=monthStart);
+const avg=arr=>arr.length?Math.round(arr.reduce((s,r)=>s+calc(r),0)/arr.length):0;
+document.getElementById('weekScore').textContent=avg(weekData)+'%';
+document.getElementById('monthScore').textContent=avg(monthData)+'%';
+document.getElementById('totalDays').textContent=data.length
+}
+
+render()
+</script>
+</body>
+</html>
